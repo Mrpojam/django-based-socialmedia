@@ -1,3 +1,4 @@
 .env
 manage.py
 settings.py
+db.sqlite3

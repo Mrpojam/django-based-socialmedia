@@ -1,0 +1,10 @@
+{% extends 'index.html' %}
+
+{% block content %}
+ <center><p> <h1>{{post.user }} | {{post.created|date}}</h1></p>
+    <div class="divider-custom-line"></div>
+    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+    <div class="divider-custom-line"></div></center>
+
+ <center></h1><p> {{post.body }}</p></center>
+{% endblock %}

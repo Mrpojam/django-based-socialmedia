@@ -72,7 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'socialmedia.wsgi.application'
 
-
+LOGIN_URL = 'account:login'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 

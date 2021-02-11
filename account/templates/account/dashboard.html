@@ -3,5 +3,25 @@
 {% block title %}  {{ user.username }} | Dashboard {% endblock %}
 
 {% block content %} 
-    <h4> {{user.username}} </h4>
+    <h4 class="text-center"> {{user.username|capfirst}} </h4>
+    <p class="text-center"> {{user.profile.bio }} </p>
+    {% if request.user.is_authenticated %}
+    {% if request.user.id == user.id %}
+    <form action="" method="post" class="form-group">
+        {% csrf_token %}
+        {{ form.body.errors }}
+        <label for="{{ form.body.id_for_label }}">Tweet</label>
+        {{ form.body }}<br/>
+        <input type="submit" value="Tweet" class = "btn btn-primary">
+    </form>
+    {% endif %}
+    {% endif %}
+    <br><br><br>
+    {% for post in posts %}
+        <div class='card'>
+            <div class='card-body'> <a href="{{post.get_absolute_url}}"> {{post.body}}</a> </div>
+        </div>
+        {% empty %}
+            <p> This User dosn't have any posts </p>
+    {% endfor %}
 {% endblock %}

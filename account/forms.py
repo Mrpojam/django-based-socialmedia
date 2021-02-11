@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from posts.models import Post
 
 class UserLoginForm(forms.Form):
     username = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Username'}))
@@ -25,3 +26,9 @@ class UserRegistrationForm(forms.Form):
         if p1 and p2:
             if p1 != p2:
                 raise forms.ValidationError('passowrds must match!')
+
+
+class AddPostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ('body',)

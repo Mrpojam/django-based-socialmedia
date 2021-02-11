@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import UserLoginForm, UserRegistrationForm
+from .forms import UserLoginForm, UserRegistrationForm, AddPostForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from posts.models import Post
+from django.utils.text import slugify
 
 def user_login(request):
     if request.method == 'POST':
@@ -40,4 +42,16 @@ def user_logout(request):
 
 def user_dashboard(request, user_id):
     user = get_object_or_404(User, id = user_id)
-    return render(request, 'account/dashboard.html', {'user':user})
+    posts = Post.objects.filter(user=user)
+    if request.method == 'POST':
+        form = AddPostForm(request.POST)
+        if form.is_valid():
+            new_post=form.save(commit=False)
+            new_post.user = request.user
+            new_post.slug = slugify(form.cleaned_data['body'][:15])
+            new_post.save()
+            messages.success(request,'Tweet done', 'success')
+            return redirect('account:dashboard', user_id)
+    else:
+        form = AddPostForm()
+    return render(request, 'account/dashboard.html', {'user':user, 'posts':posts, 'form':form})

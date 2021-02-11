@@ -3,7 +3,8 @@
 {% block content %}
  <center><p> <h1>{{post.user }} | {{post.created|date}}</h1></p>
    {% if request.user.is_authenticated and request.user.id == post.user.id %}
-      <a href="{% url 'posts:post_delete' post.user.id post.id%}"> Delete Tweet </a>
+      <a href="{% url 'posts:post_delete' post.user.id post.id%}"> Delete Tweet </a>|
+      <a href="{% url 'posts:post_edit' post.user.id post.id %}"> Edit Tweet </a>
    {% endif %}
     <div class="divider-custom-line"></div>
     <div class="divider-custom-icon"><i class="fas fa-star"></i></div>

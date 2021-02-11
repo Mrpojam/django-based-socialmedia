@@ -10,6 +10,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+        
 def save_profile(sender, **kwargs):
     if kwargs['created']:
         p1 = Profile(user=kwargs['instance'])

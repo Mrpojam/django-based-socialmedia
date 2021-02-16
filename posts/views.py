@@ -1,10 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 # from django.http import HttpResponse
-from .models import Post
+from .models import Post, Comment
 # from .forms import AddPostForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import EditPostForm
+from .forms import EditPostForm, AddCommentForm
 from django.utils.text import slugify
 
 
@@ -14,7 +14,18 @@ def all_posts(request):
 
 def post_detail(request, year, month, day, slug):
     post = get_object_or_404(Post, created__year = year, created__month = month, created__day = day, slug = slug)
-    return render(request, 'posts/post_detail.html', {'post':post})
+    if request.method=='POST':
+        form = AddCommentForm(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.post = post 
+            new_comment.user = request.user
+            new_comment.save()
+            messages.success(request, 'your reply submitted succussfully', 'success')
+
+    comment = Comment.objects.filter(post=post, is_reply=False)
+    form = AddCommentForm()
+    return render(request, 'posts/post_detail.html', {'post':post, 'comment':comment, 'form':form})
 
 # def add_post(request, user_id):
 #     if request.method == 'POST':

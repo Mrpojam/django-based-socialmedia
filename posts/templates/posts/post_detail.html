@@ -1,14 +1,35 @@
 {% extends 'index.html' %}
 
 {% block content %}
- <center><p> <h1>{{post.user }} | {{post.created|date}}</h1></p>
    {% if request.user.is_authenticated and request.user.id == post.user.id %}
       <a href="{% url 'posts:post_delete' post.user.id post.id%}"> Delete Tweet </a>|
       <a href="{% url 'posts:post_edit' post.user.id post.id %}"> Edit Tweet </a>
    {% endif %}
-    <div class="divider-custom-line"></div>
-    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
-    <div class="divider-custom-line"></div></center>
+   <div class = "card bg-white text-dark">
+      <p class="card-header"><h3>{{post.user }} | {{post.created|date}}</h3></p>
+      <p class="card-body">
+         {{post.body}}
+      </p>
+   </div>
+   <p> This tweet has {{comment.count}} replies </p>
 
- <center></h1><p> {{post.body }}</p></center>
+   {% if request.user.is_authenticated %}
+   <form action="" method="post">
+      {% csrf_token %}
+      {{form.as_p}}
+      <input type="submit" value="reply" class="btn btn-primary">
+   </form>
+   {% endif %}
+
+   {% for co in comment %}
+    <div class="card bg-dark text-white">
+       <p class="card-header"> {{co.user}}</p>
+       <p class="card-body"> {{co.body}}</p>
+    </div>
+    {% empty %}
+    <div class="card bg-dark text-white">
+      <p class="card-body"> No reply </p>
+   </div>
+   
+ {% endfor %}
 {% endblock %}

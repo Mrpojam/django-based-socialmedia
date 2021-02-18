@@ -4,7 +4,7 @@ from .models import Post, Comment
 # from .forms import AddPostForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import EditPostForm, AddCommentForm
+from .forms import EditPostForm, AddCommentForm, AddReplyForm
 from django.utils.text import slugify
 
 
@@ -14,6 +14,8 @@ def all_posts(request):
 
 def post_detail(request, year, month, day, slug):
     post = get_object_or_404(Post, created__year = year, created__month = month, created__day = day, slug = slug)
+    comment = Comment.objects.filter(post=post, is_reply=False)
+    reply_form = AddReplyForm()
     if request.method=='POST':
         form = AddCommentForm(request.POST)
         if form.is_valid():
@@ -22,10 +24,9 @@ def post_detail(request, year, month, day, slug):
             new_comment.user = request.user
             new_comment.save()
             messages.success(request, 'your reply submitted succussfully', 'success')
-
-    comment = Comment.objects.filter(post=post, is_reply=False)
-    form = AddCommentForm()
-    return render(request, 'posts/post_detail.html', {'post':post, 'comment':comment, 'form':form})
+    else:
+        form = AddCommentForm()
+    return render(request, 'posts/post_detail.html', {'post':post, 'comment':comment, 'form':form, 'reply':reply_form})
 
 # def add_post(request, user_id):
 #     if request.method == 'POST':
@@ -61,3 +62,20 @@ def post_edit(request, user_id, post_id):
             return render(request, 'posts/edit_post.html', {'form':form})
     else:
         return redirect('posts:all_posts')
+
+@login_required
+def add_reply(request, post_id, comment_id):
+    post = get_object_or_404(Post, id=post_id)
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.method=="POST":
+        form = AddReplyForm(request.POST)
+        if form.is_valid():
+            reply = form.save(commit=False)
+            reply.user = request.user
+            reply.post = post 
+            reply.reply = comment
+            reply.is_reply=True
+            reply.save()
+            messages.success(request, 'reply submitted successfully', 'success')
+        return redirect('posts:post_detail', post.created.year, post.created.month, post.created.day, post.slug)
+

@@ -5,6 +5,7 @@
 {% block content %} 
     <h4 class="text-center"> {{user.username|capfirst}} </h4>
     <p class="text-center"> {{user.profile.bio }} </p>
+    <a href="{% url 'account:edit_profile' request.user.id %}"> Edit Profile </a>
     {% if request.user.is_authenticated %}
     {% if request.user.id == user.id %}
     <form action="" method="post" class="form-group">

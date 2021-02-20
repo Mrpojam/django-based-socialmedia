@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from posts.models import Post
+from .models import Profile
 
 class UserLoginForm(forms.Form):
     username = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Username'}))
@@ -32,3 +33,8 @@ class AddPostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ('body',)
+
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('bio', 'age')

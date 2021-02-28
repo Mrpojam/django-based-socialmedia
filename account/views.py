@@ -6,7 +6,8 @@ from django.contrib import messages
 from posts.models import Post
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
-from .models import Profile
+from .models import Profile, Relation
+from django.http import JsonResponse
 
 def user_login(request):
     next = request.GET.get('next', None)
@@ -50,6 +51,10 @@ def user_logout(request):
 def user_dashboard(request, user_id):
     user = get_object_or_404(User, id = user_id)
     posts = Post.objects.filter(user=user)
+    is_following = False
+    relation = Relation.objects.filter(from_user = request.user, to_user = user)
+    if relation.exists():
+        is_following=True
     if request.method == 'POST':
         form = AddPostForm(request.POST)
         if form.is_valid():
@@ -61,7 +66,7 @@ def user_dashboard(request, user_id):
             return redirect('account:dashboard', user_id)
     else:
         form = AddPostForm()
-    return render(request, 'account/dashboard.html', {'user':user, 'posts':posts, 'form':form})
+    return render(request, 'account/dashboard.html', {'user':user, 'posts':posts, 'form':form, 'is_following':is_following})
 
 @login_required
 def edit_profile(request, user_id):
@@ -75,3 +80,29 @@ def edit_profile(request, user_id):
     else:
         form = EditProfileForm(instance=user.profile)
     return render(request, 'account/edit_profile.html', {'form':form})
+
+@login_required
+def follow(request):
+	if request.method == 'POST':
+		user_id = request.POST['user_id']
+		following = get_object_or_404(User, pk=user_id)
+		check_relation = Relation.objects.filter(from_user=request.user, to_user=following)
+		if check_relation.exists():
+			return JsonResponse({'status':'exists'})
+		else:
+			Relation(from_user=request.user, to_user=following).save()
+			return JsonResponse({'status':'ok'})
+
+
+@login_required
+def unfollow(request):
+	if request.method == 'POST':
+		user_id = request.POST['user_id']
+		following = get_object_or_404(User, pk=user_id)
+		check_relation = Relation.objects.filter(from_user=request.user, to_user=following)
+		if check_relation.exists():
+			check_relation.delete()
+			return JsonResponse({'status':'ok'})
+		else:
+			return JsonResponse({'status':'notexists'})
+

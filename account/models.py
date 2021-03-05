@@ -27,3 +27,4 @@ class Relation(models.Model):
 
     def __str__ (self):
         return f'{self.from_user} following {self.to_user}'
+    

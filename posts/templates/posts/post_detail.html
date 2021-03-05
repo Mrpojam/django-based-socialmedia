@@ -14,7 +14,11 @@
    <p> This tweet has {{comment.count}} replies </p>
 
    {% if request.user.is_authenticated %}
-   <form action="" method="post">
+    <a href = "{% url 'posts:post_like' post.id %}" class ="btn btn-primary {% if can_like %} disabled {%endif%} col-md-2"> Like {{ post.likes_count }}</a>
+   {% endif %}
+
+   {% if request.user.is_authenticated %}
+   <form action="" }method="post">
       {% csrf_token %}
       {{form.as_p}}
       <input type="submit" value="reply" class="btn btn-primary">

@@ -17,6 +17,16 @@ class Post (models.Model):
           self.created.day,
            self.slug])
 
+    def likes_count(self):
+        return self.pvote.count()
+
+    def user_can_like(self, user):
+        user_like = user.uvote.all()
+        qs = user_like.filter(post=self)
+        if qs.exists():
+            return True
+        return False
+
     class Meta:
         ordering = ('-created',)
         
@@ -33,3 +43,10 @@ class Comment (models.Model):
 
     class Meta:
         ordering = ('-created',)
+
+class Vote (models.Model):
+    post = models.ForeignKey(Post, on_delete = models.CASCADE, related_name = "pvote")
+    user = models.ForeignKey(User,on_delete = models.CASCADE, related_name = "uvote")
+
+    def __str__(self):
+        return f'{self.user} - {self.post}'

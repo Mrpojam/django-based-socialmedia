@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 # from django.http import HttpResponse
-from .models import Post, Comment
+from .models import Post, Comment, Vote
 # from .forms import AddPostForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -16,6 +16,11 @@ def post_detail(request, year, month, day, slug):
     post = get_object_or_404(Post, created__year = year, created__month = month, created__day = day, slug = slug)
     comment = Comment.objects.filter(post=post, is_reply=False)
     reply_form = AddReplyForm()
+    can_like = False
+    if request.user.is_authenticated:
+        if post.user_can_like(request.user):
+            can_like = True
+    print (can_like)
     if request.method=='POST':
         form = AddCommentForm(request.POST)
         if form.is_valid():
@@ -26,14 +31,7 @@ def post_detail(request, year, month, day, slug):
             messages.success(request, 'your reply submitted succussfully', 'success')
     else:
         form = AddCommentForm()
-    return render(request, 'posts/post_detail.html', {'post':post, 'comment':comment, 'form':form, 'reply':reply_form})
-
-# def add_post(request, user_id):
-#     if request.method == 'POST':
-#         pass
-#     else:
-#         form = AddPostForm()
-#     return render(request, 'posts/add_post.html', {'form':form})
+    return render(request, 'posts/post_detail.html', {'post':post, 'comment':comment, 'form':form, 'reply':reply_form, 'can_like':can_like})
 
 @login_required
 def post_delete(request, user_id, post_id):
@@ -79,3 +77,12 @@ def add_reply(request, post_id, comment_id):
             messages.success(request, 'reply submitted successfully', 'success')
         return redirect('posts:post_detail', post.created.year, post.created.month, post.created.day, post.slug)
 
+@login_required
+def post_like(request, post_id):
+    print ("HELLOOOO")
+    post = get_object_or_404(Post, id=post_id)
+    like = Vote(post = post, user=request.user)
+    like.save()
+    
+    messages.success(request, 'you liked this tweet', 'success')
+    return redirect('posts:post_detail', post.created.year, post.created.month, post.created.day, post.slug)
